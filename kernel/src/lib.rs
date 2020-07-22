@@ -7,6 +7,8 @@ pub mod cpu;
 /// and loading a TSS structure.
 pub mod gdt;
 pub mod idt;
+pub mod keyboard;
+pub mod memory;
 pub mod panic;
 pub mod vga;
 
@@ -14,5 +16,5 @@ pub fn init() {
     gdt::init_gdt();
     idt::init_idt();
     idt::init_pics();
-    idt::enable_interrupts()
+    idt::enable_interrupts();
 }

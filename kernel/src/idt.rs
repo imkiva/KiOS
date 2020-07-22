@@ -1,11 +1,11 @@
-use crate::{gdt, println, print};
+use crate::{gdt, print, println};
 use lazy_static::lazy_static;
 use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
 use pic8259_simple::ChainedPics;
 use spin;
 use x86_64::{
     instructions::port::Port,
-    structures::idt::{InterruptDescriptorTable, InterruptStackFrame},
+    structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode},
 };
 
 pub const PIC_OFFSET_DELTA: u8 = 8;
@@ -19,6 +19,7 @@ lazy_static! {
     static ref IDT: InterruptDescriptorTable = {
         let mut idt = InterruptDescriptorTable::new();
         idt.breakpoint.set_handler_fn(breakpoint_handler);
+        idt.page_fault.set_handler_fn(page_fault_handler);
 
         idt[Interrupts::Timer as usize].set_handler_fn(int_timer_handler);
         idt[Interrupts::Keyboard as usize].set_handler_fn(int_keyboard_handler);
@@ -67,6 +68,14 @@ pub fn enable_interrupts() {
 
 extern "x86-interrupt" fn breakpoint_handler(stack_frame: &mut InterruptStackFrame) {
     println!("Interrupted: breakpoint\n{:#?}", stack_frame);
+}
+
+extern "x86-interrupt" fn page_fault_handler(
+    _stack_frame: &mut InterruptStackFrame,
+    _error_code: PageFaultErrorCode,
+) {
+    let access = x86_64::registers::control::Cr2::read();
+    // TODO: handle page fault
 }
 
 extern "x86-interrupt" fn double_fault_handler(

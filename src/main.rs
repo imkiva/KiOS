@@ -1,10 +1,12 @@
 #![no_std]
 #![no_main]
 
+use bootloader::{entry_point, BootInfo};
 use kios_kernel::println;
 
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+entry_point!(main);
+
+fn main(boot: &'static BootInfo) -> ! {
     println!("Initializing the kernel...");
     kios_kernel::init();
 

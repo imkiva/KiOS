@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 kios_kernel = { path = 'kernel' }
-bootloader = "0.9.8"
+bootloader = { version = "0.9.8", features = ["map_physical_memory"]}
 
 [profile.dev]
 panic = "abort"
