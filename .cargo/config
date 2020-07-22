@@ -1,3 +1,5 @@
 [build]
 target = "x86_64-kios.json"
 
+[unstable]
+build-std = ["core", "compiler_builtins"]
