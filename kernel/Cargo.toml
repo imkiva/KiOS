@@ -1,5 +1,5 @@
 [package]
-name = "kios"
+name = "kios_kernel"
 version = "0.1.0"
 authors = ["imkiva <imkiva@islovely.icu>"]
 edition = "2018"
@@ -7,8 +7,10 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-kios_kernel = { path = 'kernel' }
-bootloader = "0.9.8"
+rlibc = "1.0.0"
+volatile = "0.2.6"
+spin = "0.5.2"
+x86_64 = "0.11.0"
 
 [profile.dev]
 panic = "abort"
@@ -16,3 +18,6 @@ panic = "abort"
 [profile.release]
 panic = "abort"
 
+[dependencies.lazy_static]
+version = "1.0"
+features = ["spin_no_std"]
