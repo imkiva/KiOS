@@ -5,7 +5,7 @@
 /// Switching between kernel space and user space,
 /// and loading a TSS structure.
 pub mod gdt;
-pub mod interrupts;
+pub mod idt;
 pub mod vga;
 
 use core::panic::PanicInfo;
@@ -21,5 +21,5 @@ fn panic(info: &PanicInfo) -> ! {
 
 pub fn init() {
     gdt::init_gdt();
-    interrupts::init_idt();
+    idt::init_idt();
 }
