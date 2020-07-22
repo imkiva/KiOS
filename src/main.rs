@@ -12,5 +12,6 @@ pub extern "C" fn _start() -> ! {
     println!("This is KiOS: an experimental operating-system written in Rust");
     println!("I love Rust!");
 
-    panic!("No /init found");
+    println!("Kernel booted");
+    kios_kernel::cpu::forever_hlt();
 }
