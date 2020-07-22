@@ -6,7 +6,6 @@ mod vga;
 extern crate rlibc;
 use core::panic::PanicInfo;
 
-static HELLO: &[u8] = b"hello world";
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -15,5 +14,10 @@ fn panic(_info: &PanicInfo) -> ! {
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
+    use core::fmt::Write;
+    write!(
+        vga::WRITER.lock(),
+        "hello world\nThis is KiOS: an experimental operating-system written in Rust\nI love Rust!"
+    ).unwrap();
     loop {}
 }
