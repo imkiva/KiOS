@@ -7,17 +7,19 @@ extern crate rlibc;
 use core::panic::PanicInfo;
 
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    println!("\n\n*****");
+    println!("Kernel panic: not syncing.");
+    println!("{}", info);
+    println!("*****\n");
     loop {}
 }
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    use core::fmt::Write;
-    write!(
-        vga::WRITER.lock(),
-        "hello world\nThis is KiOS: an experimental operating-system written in Rust\nI love Rust!"
-    )
-    .unwrap();
-    loop {}
+    println!("hello world");
+    println!("This is KiOS: an experimental operating-system written in Rust");
+    println!("I love Rust!");
+
+    panic!("No /init found");
 }
