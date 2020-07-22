@@ -85,7 +85,6 @@ extern "x86-interrupt" fn int_timer_handler(_stack_frame: &mut InterruptStackFra
 }
 
 extern "x86-interrupt" fn int_keyboard_handler(_stack_frame: &mut InterruptStackFrame) {
-    // TODO: get key and print to screen
     let mut keyboard = KEYBOARD.lock();
     let mut port = Port::new(0x60);
     let code = unsafe { port.read() };
