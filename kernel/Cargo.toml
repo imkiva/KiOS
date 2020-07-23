@@ -13,6 +13,7 @@ spin = "0.5.2"
 x86_64 = "0.11.0"
 pic8259_simple = "0.2.0"
 pc-keyboard = "0.5.1"
+bootloader = { version = "0.9.8", features = ["map_physical_memory"]}
 
 [profile.dev]
 panic = "abort"

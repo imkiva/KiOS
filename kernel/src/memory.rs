@@ -1,40 +1,45 @@
-use x86_64::{structures::paging::PageTable, PhysAddr, VirtAddr};
-use x86_64::structures::paging::OffsetPageTable;
+use bootloader::bootinfo::{MemoryMap, MemoryRegionType};
+use x86_64::{
+    structures::paging::{FrameAllocator, OffsetPageTable, PageTable, PhysFrame, Size4KiB},
+    PhysAddr, VirtAddr,
+};
 
-pub trait IntoPhysAddr {
-    fn into_physical_addr(self, physical_offset: VirtAddr) -> Option<PhysAddr>;
+pub struct BootInfoFrameAllocator {
+    memory_map: &'static MemoryMap,
+    next: usize,
 }
 
-impl IntoPhysAddr for VirtAddr {
-    fn into_physical_addr(self, physical_offset: VirtAddr) -> Option<PhysAddr> {
-        let (frame, _) = x86_64::registers::control::Cr3::read();
-        let frame = [
-            self.p4_index(),
-            self.p3_index(),
-            self.p2_index(),
-            self.p1_index(),
-        ]
-        .iter()
-        .fold(Some(frame), |frame, index| match frame {
-            None => None,
-            Some(frame) => {
-                let virt = physical_offset + frame.start_address().as_u64();
-                let table = unsafe { &*virt.as_ptr::<PageTable>() };
+impl BootInfoFrameAllocator {
+    pub fn init(memory_map: &'static MemoryMap) -> Self {
+        BootInfoFrameAllocator {
+            memory_map,
+            next: 0,
+        }
+    }
 
-                let entry = &table[*index];
-                match entry.frame() {
-                    Ok(frame) => Some(frame),
-                    Err(_) => None,
-                }
-            }
-        });
-
-        frame.map(|frame| frame.start_address() + u64::from(self.page_offset()))
+    fn unused_4kib_frames(&self) -> impl Iterator<Item = PhysFrame> {
+        self.memory_map
+            .iter()
+            .filter(|r| r.region_type == MemoryRegionType::Usable)
+            // map each region to its address range
+            .map(|r| r.range.start_addr()..r.range.end_addr())
+            // transform to an iterator of frame start addresses
+            .flat_map(|r| r.step_by(4096))
+            // create `PhysFrame` types from the start addresses
+            .map(|addr| PhysFrame::containing_address(PhysAddr::new(addr)))
     }
 }
 
-/// Level 4 table.
-fn level_4_table(physical_offset: VirtAddr) -> &'static mut PageTable {
+unsafe impl FrameAllocator<Size4KiB> for BootInfoFrameAllocator {
+    fn allocate_frame(&mut self) -> Option<PhysFrame> {
+        let frame = self.unused_4kib_frames().nth(self.next);
+        self.next += 1;
+        frame
+    }
+}
+
+/// Active Level 4 table.
+fn get_active_level_4_table(physical_offset: VirtAddr) -> &'static mut PageTable {
     let (frame, _) = x86_64::registers::control::Cr3::read();
 
     let start = frame.start_address();
@@ -45,6 +50,6 @@ fn level_4_table(physical_offset: VirtAddr) -> &'static mut PageTable {
 }
 
 pub fn init(physical_offset: VirtAddr) -> OffsetPageTable<'static> {
-    let table = level_4_table(physical_offset);
+    let table = get_active_level_4_table(physical_offset);
     unsafe { OffsetPageTable::new(table, physical_offset) }
 }
