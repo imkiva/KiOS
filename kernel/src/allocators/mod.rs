@@ -1,7 +1,7 @@
 pub mod bump;
 
 #[global_allocator]
-static ALLOCATOR: Locked<bump::BumpAllocator> = Locked::new(bump::BumpAllocator::new());
+pub static KERNEL_ALLOCATOR: Locked<bump::BumpAllocator> = Locked::new(bump::BumpAllocator::new());
 
 struct Locked<A> {
     lock: spin::Mutex<A>,

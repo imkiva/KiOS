@@ -5,6 +5,8 @@ use x86_64::{
     VirtAddr,
 };
 
+use crate::allocators;
+
 pub const HEAP_START: usize = 0x_4444_4444_0000;
 pub const HEAP_SIZE: usize = SIZE_1MIB;
 pub const SIZE_1MIB: usize = 1024 * 1024;
@@ -36,5 +38,7 @@ pub fn init_kernel_heap(
         };
     }
 
+    // initialize kernel allocator
+    unsafe { allocators::KERNEL_ALLOCATOR.lock().init(HEAP_START, HEAP_SIZE); }
     Ok(())
 }
