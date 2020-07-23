@@ -71,6 +71,7 @@ impl Stream for ScancodeStream {
 ///
 /// Must not block or allocate.
 pub(crate) fn add_scancode(scancode: u8) {
+    // if not initialized, just do nothing.
     if let Ok(queue) = SCANCODE_QUEUE.try_get() {
         // The ArrayQueue performs all necessary synchronization itself,
         // so we don't need a mutex wrapper here.
@@ -79,8 +80,6 @@ pub(crate) fn add_scancode(scancode: u8) {
         } else {
             WAKER.wake();
         }
-    } else {
-        println!("WARNING: scancode queue uninitialized");
     }
 }
 
