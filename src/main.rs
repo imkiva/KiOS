@@ -4,7 +4,7 @@
 extern crate alloc;
 use bootloader::{entry_point, BootInfo};
 use kios_kernel::{
-    ktask::{kernel_tasks::keyboard, simple_executor::SimpleExecutor, KernelTask},
+    ktask::{executor::Executor, kernel_tasks::keyboard, KernelTask},
     println,
 };
 
@@ -20,9 +20,7 @@ fn main(boot: &'static BootInfo) -> ! {
 
     println!("Kernel booted");
 
-    let mut executor = SimpleExecutor::new();
+    let mut executor = Executor::new();
     executor.spawn(KernelTask::new(keyboard::print_keyevents()));
     executor.run();
-
-    kios_kernel::cpu::forever_hlt();
 }
