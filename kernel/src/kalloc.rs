@@ -6,10 +6,12 @@ use x86_64::{
 };
 
 use crate::allocators;
+use crate::println;
 
-pub const HEAP_START: usize = 0x_4444_4444_0000;
-pub const HEAP_SIZE: usize = SIZE_1MIB;
+pub const HEAP_START: usize = 0x_0000_7000_0000;
+pub const HEAP_SIZE: usize = SIZE_4MIB;
 pub const SIZE_1MIB: usize = 1024 * 1024;
+pub const SIZE_4MIB: usize = SIZE_1MIB * 4;
 
 #[alloc_error_handler]
 fn alloc_error_handler(layout: alloc::alloc::Layout) -> ! {
