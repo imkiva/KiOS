@@ -80,3 +80,23 @@ pub(crate) fn add_scancode(scancode: u8) {
         println!("WARNING: scancode queue uninitialized");
     }
 }
+
+pub async fn print_keyevents() {
+    use crate::print;
+    use futures_util::stream::StreamExt;
+    use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
+
+    let mut stream = ScancodeStream::new();
+    let mut keyboard = Keyboard::new(layouts::Us104Key, ScancodeSet1, HandleControl::Ignore);
+
+    while let Some(scancode) = stream.next().await {
+        match keyboard.add_byte(scancode) {
+            Ok(Some(event)) => match keyboard.process_keyevent(event) {
+                Some(DecodedKey::RawKey(key)) => print!("{:?}", key),
+                Some(DecodedKey::Unicode(char)) => print!("{}", char),
+                _ => (),
+            },
+            _ => (),
+        }
+    }
+}
