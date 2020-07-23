@@ -1,11 +1,17 @@
 pub mod bump;
+pub mod fixed;
 pub mod linked;
 
+#[allow(dead_code)]
 pub static KERNEL_ALLOCATOR1: Locked<bump::BumpAllocator> = Locked::new(bump::BumpAllocator::new());
 
-#[global_allocator]
+#[allow(dead_code)]
 pub static KERNEL_ALLOCATOR2: Locked<linked::LinkedListAllocator> =
     Locked::new(linked::LinkedListAllocator::new());
+
+#[global_allocator]
+pub static KERNEL_ALLOCATOR3: Locked<fixed::FixedSizeBlockAllocator> =
+    Locked::new(fixed::FixedSizeBlockAllocator::new());
 
 pub struct Locked<A> {
     lock: spin::Mutex<A>,

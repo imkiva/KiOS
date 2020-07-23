@@ -40,11 +40,7 @@ pub fn init_kernel_heap(
 
     // initialize kernel allocator
     unsafe {
-        allocators::KERNEL_ALLOCATOR1
-            .lock()
-            .init(HEAP_START, HEAP_SIZE);
-
-        allocators::KERNEL_ALLOCATOR2
+        allocators::KERNEL_ALLOCATOR3
             .lock()
             .init(HEAP_START, HEAP_SIZE);
     }
