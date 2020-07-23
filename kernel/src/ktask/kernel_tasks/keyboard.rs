@@ -15,6 +15,9 @@ use futures_util::{stream::Stream, task::AtomicWaker};
 /// the interrupt handler performs a heap allocation.
 static SCANCODE_QUEUE: OnceCell<ArrayQueue<u8>> = OnceCell::uninit();
 
+/// The size of the SCANCODE_QUEUE.
+const SCANCODE_QUEUE_SIZE: usize = 128;
+
 /// To implement the Waker notification for our ScancodeStream,
 /// we need a place where we can store the Waker between poll calls.
 /// We can't store it as a field in the ScancodeStream itself
@@ -34,7 +37,7 @@ impl ScancodeStream {
     /// The only way to create a ScancodeStream is use Self::new()
     pub fn new() -> Self {
         SCANCODE_QUEUE
-            .try_init_once(|| ArrayQueue::new(100))
+            .try_init_once(|| ArrayQueue::new(SCANCODE_QUEUE_SIZE))
             .expect("ScancodeStream::new should only be called once");
         ScancodeStream { _singleton: () }
     }
