@@ -6,10 +6,11 @@ use x86_64::{
 };
 
 use crate::allocators;
-use crate::println;
 
-pub const HEAP_START: usize = 0x_0000_7000_0000;
-pub const HEAP_SIZE: usize = SIZE_4MIB;
+/// Virtual address of kernel heap start
+pub const KERNEL_HEAP_START: u64 = 0x_0000_7000_0000;
+pub const KERNEL_HEAP_INIT_SIZE: u64 = SIZE_4MIB as u64;
+
 pub const SIZE_1MIB: usize = 1024 * 1024;
 pub const SIZE_4MIB: usize = SIZE_1MIB * 4;
 
@@ -22,8 +23,8 @@ pub fn init_kernel_heap(
     page_table: &mut impl Mapper<Size4KiB>,
     frame_allocator: &mut impl FrameAllocator<Size4KiB>,
 ) -> Result<(), MapToError<Size4KiB>> {
-    let heap_start = VirtAddr::new(HEAP_START as u64);
-    let heap_end = heap_start + HEAP_SIZE;
+    let heap_start = VirtAddr::new(KERNEL_HEAP_START);
+    let heap_end = heap_start + KERNEL_HEAP_INIT_SIZE;
     let heap_start_page = Page::containing_address(heap_start);
     let heap_end_page = Page::containing_address(heap_end);
 
@@ -44,7 +45,7 @@ pub fn init_kernel_heap(
     unsafe {
         allocators::KERNEL_ALLOCATOR3
             .lock()
-            .init(HEAP_START, HEAP_SIZE);
+            .init(KERNEL_HEAP_START as usize, KERNEL_HEAP_INIT_SIZE as usize);
     }
     Ok(())
 }

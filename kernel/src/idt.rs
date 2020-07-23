@@ -68,7 +68,7 @@ extern "x86-interrupt" fn page_fault_handler(
     _error_code: PageFaultErrorCode,
 ) {
     let access = x86_64::registers::control::Cr2::read();
-    // TODO: handle page fault
+    println!("Page fault when accessing {:?}", access);
 }
 
 extern "x86-interrupt" fn double_fault_handler(
