@@ -96,8 +96,24 @@ impl Executor {
     }
 
     fn idle(&self) {
+        // there is still a subtle race condition in this implementation.
+        // Since interrupts are asynchronous and can happen at any time,
+        // it is possible that an interrupt happens right between
+        // the is_empty check and the call to hlt:
+        // if self.task_queue.is_empty() {
+        //     crate::cpu::hlt();
+        // }
+
+        use x86_64::instructions::interrupts;
+
+        // To avoid race conditions, we disable interrupts before checking
+        interrupts::disable();
         if self.task_queue.is_empty() {
-            crate::cpu::hlt();
+            // enable interrupts and hlt the cpu until next task wakes.
+            interrupts::enable_interrupts_and_hlt();
+        } else {
+            // just re-enable interrupts.
+            interrupts::enable();
         }
     }
 }
