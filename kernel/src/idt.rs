@@ -1,6 +1,5 @@
-use crate::{gdt, print, println};
+use crate::{gdt, println};
 use lazy_static::lazy_static;
-use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
 use pic8259_simple::ChainedPics;
 use spin;
 use x86_64::{
@@ -31,12 +30,6 @@ lazy_static! {
         }
         idt
     };
-}
-
-lazy_static! {
-    static ref KEYBOARD: spin::Mutex<Keyboard<layouts::Us104Key, ScancodeSet1>> = spin::Mutex::new(
-        Keyboard::new(layouts::Us104Key, ScancodeSet1, HandleControl::Ignore)
-    );
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -94,18 +87,9 @@ extern "x86-interrupt" fn int_timer_handler(_stack_frame: &mut InterruptStackFra
 }
 
 extern "x86-interrupt" fn int_keyboard_handler(_stack_frame: &mut InterruptStackFrame) {
-    let mut keyboard = KEYBOARD.lock();
     let mut port = Port::new(0x60);
     let code = unsafe { port.read() };
 
-    match keyboard.add_byte(code) {
-        Ok(Some(event)) => match keyboard.process_keyevent(event) {
-            Some(DecodedKey::RawKey(key)) => print!("{:?}", key),
-            Some(DecodedKey::Unicode(char)) => print!("{}", char),
-            _ => (),
-        },
-        _ => (),
-    }
-
+    crate::ktask::kernel_tasks::keyboard::add_scancode(code);
     Interrupts::Keyboard.end_of_interrupt();
 }

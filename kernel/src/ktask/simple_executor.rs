@@ -1,11 +1,9 @@
+use crate::ktask::KernelTask;
 use alloc::collections::VecDeque;
-use crate::ktask::Task;
-use core::task::{Waker, RawWaker};
-use core::task::RawWakerVTable;
-use core::task::{Context, Poll};
+use core::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
 
 pub struct SimpleExecutor {
-    tasks: VecDeque<Task>,
+    tasks: VecDeque<KernelTask>,
 }
 
 impl SimpleExecutor {
@@ -15,7 +13,7 @@ impl SimpleExecutor {
         }
     }
 
-    pub fn spawn(&mut self, task: Task) {
+    pub fn spawn(&mut self, task: KernelTask) {
         self.tasks.push_back(task)
     }
 

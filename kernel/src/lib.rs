@@ -18,7 +18,6 @@ pub mod cpu;
 pub mod gdt;
 pub mod idt;
 pub mod kalloc;
-pub mod keyboard;
 pub mod ktask;
 pub mod memory;
 pub mod panic;

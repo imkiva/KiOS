@@ -1,16 +1,20 @@
-use core::{future::Future, pin::Pin};
-use core::task::{Context, Poll};
 use alloc::boxed::Box;
+use core::{
+    future::Future,
+    pin::Pin,
+    task::{Context, Poll},
+};
 
+pub mod kernel_tasks;
 pub mod simple_executor;
 
-pub struct Task {
+pub struct KernelTask {
     future: Pin<Box<dyn Future<Output = ()>>>,
 }
 
-impl Task {
-    pub fn new(future: impl Future<Output = ()> + 'static) -> Task {
-        Task {
+impl KernelTask {
+    pub fn new(future: impl Future<Output = ()> + 'static) -> KernelTask {
+        KernelTask {
             future: Box::pin(future),
         }
     }
