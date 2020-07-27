@@ -19,6 +19,9 @@ lazy_static! {
         let mut idt = InterruptDescriptorTable::new();
         idt.breakpoint.set_handler_fn(breakpoint_handler);
         idt.page_fault.set_handler_fn(page_fault_handler);
+        idt.divide_error.set_handler_fn(divide_error_handler);
+        idt.device_not_available.set_handler_fn(device_not_available_handler);
+        idt.invalid_opcode.set_handler_fn(invalid_opcode_handler);
 
         idt[Interrupts::Timer as usize].set_handler_fn(int_timer_handler);
         idt[Interrupts::Keyboard as usize].set_handler_fn(int_keyboard_handler);
@@ -61,6 +64,18 @@ pub fn enable_interrupts() {
 
 extern "x86-interrupt" fn breakpoint_handler(stack_frame: &mut InterruptStackFrame) {
     println!("Interrupted: breakpoint\n{:#?}", stack_frame);
+}
+
+extern "x86-interrupt" fn divide_error_handler(stack_frame: &mut InterruptStackFrame) {
+    println!("Interrupted: divide error\n{:#?}", stack_frame);
+}
+
+extern "x86-interrupt" fn device_not_available_handler(stack_frame: &mut InterruptStackFrame) {
+    println!("Interrupted: device not available\n{:#?}", stack_frame);
+}
+
+extern "x86-interrupt" fn invalid_opcode_handler(stack_frame: &mut InterruptStackFrame) {
+    println!("Interrupted: invalid opcode\n{:#?}", stack_frame);
 }
 
 extern "x86-interrupt" fn page_fault_handler(
