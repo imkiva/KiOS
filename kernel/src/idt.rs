@@ -25,6 +25,7 @@ lazy_static! {
 
         idt[Interrupts::Timer as usize].set_handler_fn(int_timer_handler);
         idt[Interrupts::Keyboard as usize].set_handler_fn(int_keyboard_handler);
+        idt[Interrupts::Syscall as usize].set_handler_fn(int_syscall_handler);
 
         unsafe {
             idt.double_fault
@@ -40,6 +41,7 @@ lazy_static! {
 pub enum Interrupts {
     Timer = PIC_1_OFFSET,
     Keyboard,
+    Syscall = 0x80,
 }
 
 impl Interrupts {
@@ -107,4 +109,8 @@ extern "x86-interrupt" fn int_keyboard_handler(_stack_frame: &mut InterruptStack
 
     crate::ktask::kernel_tasks::keyboard::add_scancode(code);
     Interrupts::Keyboard.end_of_interrupt();
+}
+
+extern "x86-interrupt" fn int_syscall_handler(_stack_frame: &mut InterruptStackFrame) {
+    Interrupts::Syscall.end_of_interrupt()
 }
